@@ -74,7 +74,7 @@
     <p>Enter the YouTube URL below:</p>
     <input type="text" id="youtubeUrl" placeholder="Paste YouTube URL here" />
     <br>
-    <button onclick="redirectToVideo()">Open Video</button>
+    <button onclick="startAutoClicking()">Start Automatic Open</button>
 
     <div class="count-section">
         <p>Click Count: <span id="countDisplay">0</span></p>
@@ -91,22 +91,20 @@
     let youtubeUrl = "";  
     let autoClickInterval;  
     let maxAutoClicks = 5;  // We want to open the video 5 times
+    let youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+$/;
 
     // Function to open the YouTube video
-    function redirectToVideo() {
-        const url = document.getElementById('youtubeUrl').value;
-        
-        const youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+$/;
+    function openVideo() {
+        const url = youtubeUrl;
         
         if (youtubeRegex.test(url)) {
-            youtubeUrl = url;  
             count++;
             document.getElementById('countDisplay').textContent = count;
 
             // Open the YouTube video in a new tab
             const newTab = window.open(url, '_blank');
 
-            // Alert the user if popups are blocked (since we can't directly know in JS)
+            // Alert the user if popups are blocked
             setTimeout(() => {
                 if (newTab && newTab.closed) {
                     document.getElementById('popupAlert').style.display = 'block';
@@ -119,31 +117,26 @@
 
     // Start the auto-click process
     function startAutoClicking() {
-        if (!youtubeUrl) {
-            alert("Please enter a valid YouTube URL first.");
+        youtubeUrl = document.getElementById('youtubeUrl').value;
+        
+        if (!youtubeRegex.test(youtubeUrl)) {
+            alert("Please enter a valid YouTube URL.");
             return;
         }
 
+        // Reset count and start automatic video openings every 2 minutes
+        count = 0;
+        document.getElementById('countDisplay').textContent = count;
+
         autoClickInterval = setInterval(() => {
             if (autoClickCount < maxAutoClicks) {
-                redirectToVideo();  
-                autoClickCount++;    
+                openVideo();
+                autoClickCount++;
             } else {
                 clearInterval(autoClickInterval);  // Stop after 5 clicks
             }
-        }, 600000);  // 600,000ms = 10 minutes
+        }, 120000);  // 120,000ms = 2 minutes
     }
-
-    // Initialize the auto-clicking after URL input
-    function initiateAutoClick() {
-        if (document.getElementById('youtubeUrl').value) {
-            setTimeout(startAutoClicking, 10000);  // Start after 10 seconds
-        }
-    }
-
-    // Add event listener to input to start auto-click after a delay
-    document.getElementById('youtubeUrl').addEventListener('input', initiateAutoClick);
-
 </script>
 
 </body>
