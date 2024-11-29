@@ -60,11 +60,6 @@
             font-size: 20px;
             color: #FF0000;
         }
-        .alert {
-            color: red;
-            font-weight: bold;
-            margin-top: 15px;
-        }
     </style>
 </head>
 <body>
@@ -74,14 +69,11 @@
     <p>Enter the YouTube URL below:</p>
     <input type="text" id="youtubeUrl" placeholder="Paste YouTube URL here" />
     <br>
-    <button onclick="startAutoClicking()">Start Automatic Open</button>
+    <button onclick="redirectToVideo()">Open Video</button>
 
+   
     <div class="count-section">
         <p>Click Count: <span id="countDisplay">0</span></p>
-    </div>
-
-    <div class="alert" id="popupAlert" style="display:none;">
-        Please allow popups in your browser to open the video in a new tab.
     </div>
 </div>
 
@@ -90,53 +82,66 @@
     let autoClickCount = 0;  
     let youtubeUrl = "";  
     let autoClickInterval;  
-    let maxAutoClicks = 5;  // We want to open the video 5 times
-    let youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+$/;
 
-    // Function to open the YouTube video
-    function openVideo() {
-        const url = youtubeUrl;
+    
+    function redirectToVideo() {
+        const url = document.getElementById('youtubeUrl').value;
+        
+        
+        const youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+$/;
         
         if (youtubeRegex.test(url)) {
+            youtubeUrl = url;  
             count++;
+            
+            
             document.getElementById('countDisplay').textContent = count;
 
-            // Open the YouTube video in a new tab
+            
             const newTab = window.open(url, '_blank');
-
-            // Alert the user if popups are blocked
+            
+            
             setTimeout(() => {
-                if (newTab && newTab.closed) {
-                    document.getElementById('popupAlert').style.display = 'block';
+                if (newTab && !newTab.closed) {
+                    newTab.close();
                 }
-            }, 2000);  // Check if the tab closed within 2 seconds (i.e., popup was blocked)
+            }, 600000); 
         } else {
             alert('Please enter a valid YouTube URL');
         }
     }
 
-    // Start the auto-click process
+    
     function startAutoClicking() {
-        youtubeUrl = document.getElementById('youtubeUrl').value;
         
-        if (!youtubeRegex.test(youtubeUrl)) {
-            alert("Please enter a valid YouTube URL.");
+        if (!youtubeUrl) {
+            alert("Please enter a valid YouTube URL first.");
             return;
         }
 
-        // Reset count and start automatic video openings every 2 minutes
-        count = 0;
-        document.getElementById('countDisplay').textContent = count;
-
+        
         autoClickInterval = setInterval(() => {
-            if (autoClickCount < maxAutoClicks) {
-                openVideo();
-                autoClickCount++;
+            if (autoClickCount < 10) {
+                redirectToVideo();  
+                autoClickCount++;    
             } else {
-                clearInterval(autoClickInterval);  // Stop after 5 clicks
+                clearInterval(autoClickInterval);  
             }
-        }, 120000);  // 120,000ms = 2 minutes
+        }, 600000);  
     }
+
+    
+    function initiateAutoClick() {
+        
+        if (document.getElementById('youtubeUrl').value) {
+        
+            setTimeout(startAutoClicking, 10000);
+        }
+    }
+
+    
+    document.getElementById('youtubeUrl').addEventListener('input', initiateAutoClick);
+
 </script>
 
 </body>
